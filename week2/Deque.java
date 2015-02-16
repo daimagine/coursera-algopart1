@@ -1,4 +1,5 @@
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class Deque<Item> implements Iterable<Item> {
 	
@@ -15,10 +16,10 @@ public class Deque<Item> implements Iterable<Item> {
 
 		public void setItem(Item item) { this.item = item; }
 		public Item getItem() { return this.item; }
-		public void setPrev(Item item) { this.prev = prev; }
-		public Item getPrev() { return this.prev; }
-		public void setNext(Item item) { this.next = item; }
-		public Item getNext() { return this.next; }
+		public void setPrev(Node prev) { this.prev = prev; }
+		public Node getPrev() { return this.prev; }
+		public void setNext(Node next) { this.next = next; }
+		public Node getNext() { return this.next; }
 	}
 
 	private Node front;
@@ -27,7 +28,7 @@ public class Deque<Item> implements Iterable<Item> {
 	/**
 	 * construct an empty deque
 	 */
-	public Deque(Item item) {
+	public Deque() {
 		this.front = null;
 		this.end = null;
 	}
@@ -89,12 +90,61 @@ public class Deque<Item> implements Iterable<Item> {
    	 */
    	public Item removeFirst() {
    		if (front == null) throw new java.util.NoSuchElementException();
+         Item item = front.getItem();
    		Node node = front.getNext();
-   		node.setPrev(null);
+   		if (node != null) {
+            node.setPrev(null);
+         }
    		front = node;
+         return item;
    	}
-   	public Item removeLast()                 // remove and return the item from the end
-   	public Iterator<Item> iterator()         // return an iterator over items in order from front to end
+   	
+      /** 
+       * remove and return the item from the end
+       */
+      public Item removeLast() {
+         if (end == null) throw new java.util.NoSuchElementException();
+         Item item = end.getItem();
+         Node node = end.getPrev();
+         if (node != null) {
+            node.setNext(null);
+         }
+         end = node;
+         return item;
+      }
 
-   	public static void main(String[] args)   // unit testing
+      /**
+       * return an iterator over items in order from front to end
+       */
+      @Override
+   	public Iterator<Item> iterator() {
+         return new ItemIterator(front);
+      }
+
+      private class ItemIterator implements Iterator<Item>{
+         private Node current;
+
+         public ItemIterator(Node current) {
+            this.current = current;
+         }
+
+         @Override
+         public boolean hasNext() {
+            return current != null;
+         }
+
+         @Override
+         public Item next() {
+            if (current == null) throw new NoSuchElementException();
+            Item item = current.getItem();
+            current = current.getNext();
+            return item;
+         }
+
+         @Override
+         public void remove() {
+            throw new UnsupportedOperationException();
+         }
+      }
+
 }
